@@ -14,15 +14,10 @@
 
 #include "logging.h"
 
-static const char *sim_operator_numeric = "310030";
-static const char *sim_operator_country = "us";
+static const char *custom_localization = "en-US";
 
-void set_sim_operator_numeric(const char *string) {
-    sim_operator_numeric = strdup(string);
-}
-
-void set_sim_operator_country(const char *string) {
-    sim_operator_country = strdup(string);
+void set_custom_localization(const char *string) {
+    custom_localization = strdup(string);
 }
 
 #define XHOOK_REGISTER(NAME) \
@@ -36,11 +31,8 @@ void set_sim_operator_country(const char *string) {
 NEW_FUNC_DEF(int, __system_property_get, const char *key, char *value) {
     int res = old___system_property_get(key, value);
     if (key) {
-        if (strcmp("gsm.sim.operator.numeric", key) == 0) {
-            strcpy(value, sim_operator_numeric);
-            LOGI("system_property_get: %s -> %s", key, value);
-        } else if (strcmp("gsm.sim.operator.iso-country", key) == 0) {
-            strcpy(value, sim_operator_country);
+        if (strcmp("persist.sys.locale", key) == 0) {
+            strcpy(value, custom_localization);
             LOGI("system_property_get: %s -> %s", key, value);
         }
     }
@@ -49,11 +41,8 @@ NEW_FUNC_DEF(int, __system_property_get, const char *key, char *value) {
 
 NEW_FUNC_DEF(std::string, _ZN7android4base11GetPropertyERKNSt3__112basic_stringIcNS1_11char_traitsIcEENS1_9allocatorIcEEEES9_, const std::string &key, const std::string &default_value) {
     std::string res = old__ZN7android4base11GetPropertyERKNSt3__112basic_stringIcNS1_11char_traitsIcEENS1_9allocatorIcEEEES9_(key, default_value);
-    if (strcmp("gsm.sim.operator.numeric", key.c_str()) == 0) {
-        res = sim_operator_numeric;
-        LOGI("android::base::GetProperty: %s -> %s", key.c_str(), res.c_str());
-    } else if (strcmp("gsm.sim.operator.iso-country", key.c_str()) == 0) {
-        res = sim_operator_country;
+    if (strcmp("persist.sys.locale", key.c_str()) == 0) {
+        res = custom_localization;
         LOGI("android::base::GetProperty: %s -> %s", key.c_str(), res.c_str());
     }
     return res;

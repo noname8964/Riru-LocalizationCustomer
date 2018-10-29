@@ -16,15 +16,13 @@
 #include "hook.h"
 #include "misc.h"
 
-#define CONFIG_PATH "/data/misc/riru/modules/location_report_enabler"
+#define CONFIG_PATH "/data/misc/riru/modules/localization_customer"
 
 static char package_name[256];
 static int uid;
 static int enable_hook;
 static std::vector<std::string> packages = {
-        "com.google.android.gms",
-        "com.google.android.gsf",
-        "com.google.android.apps.maps"
+        "com.android.htmlviewer"
 };
 
 int is_app_need_hook(JNIEnv *env, jstring appDataDir) {
@@ -61,16 +59,9 @@ int is_app_need_hook(JNIEnv *env, jstring appDataDir) {
 void load_config() {
     char buf[PROP_VALUE_MAX + 1];
     int fd;
-    fd = open(CONFIG_PATH "/gsm.sim.operator.numeric", O_RDONLY);
+    fd = open((CONFIG_PATH "/packages/%s", package_name), O_RDONLY);
     if (fd > 0 && fdgets(buf, sizeof(buf), fd) > 0)
-        set_sim_operator_numeric(buf);
-
-    if (fd > 0)
-        close(fd);
-
-    fd = open(CONFIG_PATH "/gsm.sim.operator.iso-country", O_RDONLY);
-    if (fd > 0 && fdgets(buf, sizeof(buf), fd) > 0)
-        set_sim_operator_country(buf);
+        set_custom_localization(buf);
 
     if (fd > 0)
         close(fd);
